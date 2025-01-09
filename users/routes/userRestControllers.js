@@ -1,37 +1,50 @@
 const express = require("express");
-const { registerUser, getUser } = require("../models/userAccessDataService");
+const {
+  registerUser,
+  getUser,
+  loginUser,
+} = require("../models/userAccessDataService");
 const auth = require("../../auth/authService");
+const { handleError } = require("../../utils/handleErrors");
 const router = express.Router();
 
-
-// Public route - Register new user
-router.post("/", auth, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
     let user = await registerUser(req.body);
     res.send(user);
   } catch (error) {
-    res.status(400).send(error.message);
-  }
+handleError(res, error.status || 400, error.message);
+}
 });
 
 router.get("/:id", auth, async (req, res) => {
   try {
+    const userInfo = req.user;
     let { id } = req.params;
+
+    if (userInfo._id != id && !userInfo.isAdmin) {
+      return res
+        .status(403)
+        .send(
+          "Authorization Error: Only the same user or admin can get user info"
+        );
+    }
+
     let user = await getUser(id);
     res.send(user);
   } catch (error) {
-    res.status(400).send(error.message);
+    handleError(res, error.status || 400, error.message);
   }
 });
+
 router.post("/login", async (req, res) => {
-  try{
-  let{ email , password} = req.body;
-  const token = await loginUser(email, password);
-  res.send(token);
+  try {
+    let { email, password } = req.body;
+    const token = await loginUser(email, password);
+    res.send(token);
+  } catch (error) {
+    handleError(res, error.status || 400, error.message);
   }
-  catch(error){
-    res.status(400).send(error.message);
-  }
-}
-);
+});
+
 module.exports = router;

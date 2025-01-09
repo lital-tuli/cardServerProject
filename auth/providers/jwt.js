@@ -1,5 +1,4 @@
 const jwt = require("jsonwebtoken");
-const { patch } = require("../../router/router");
 
 const SECRET_WORD = "secret";
 

@@ -6,7 +6,7 @@ const userRouterController = require("../users/routes/userRestControllers");
 router.use("/cards", cardsRouterController);
 router.use("/users", userRouterController);
 router.use((req, res) => {
-  res.status(404).send("Path not found");
+handleError(res, 404, "Route not found.");
 });
 
 module.exports = router;

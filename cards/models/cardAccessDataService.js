@@ -1,4 +1,5 @@
 const DB = "MongoDB";
+const { createError } = require("../../utils/handleErrors");
 const Card = require("./mongodb/Card");
 
 const createCard = async (newCard) => {
@@ -8,13 +9,12 @@ const createCard = async (newCard) => {
       card = await card.save();
       return card;
     } catch (error) {
-      throw new Error("Mongoose " + error.message);
-    }
+return createError("Mongoose", error);
+   }
   }
-
-  // if(DB === "SQL"){
-  //   ...
-  // }
+const error = new Error("Tthere is no other DB for this request");
+error.status = 500;
+return createError("DataBase", error);
 };
 
 const getCards = async () => {
@@ -22,7 +22,7 @@ const getCards = async () => {
     let cards = await Card.find();
     return cards;
   } catch (error) {
-    throw new Error("Mongoose " + error.message);
+    return createError("Mongoose", error);
   }
 };
 
@@ -31,7 +31,7 @@ const getCard = async (cardId) => {
     let card = await Card.findById(cardId);
     return card;
   } catch (error) {
-    throw new Error("Mongoose:" + error);
+    return createError("Mongoose", error);
   }
 };
 
@@ -40,7 +40,7 @@ const getMyCards = async (userId) => {
     let cards = await Card.find({ user_id: userId });
     return cards;
   } catch (error) {
-    throw new Error("Mongoose:" + error);
+    return createError("Mongoose", error);
   }
 };
 
@@ -49,15 +49,19 @@ const updateCard = async (cardId, newCard) => {
     let card = await Card.findByIdAndUpdate(cardId, newCard, { new: true });
     return card;
   } catch (error) {
-    throw new Error("Mongoose:" + error);
+    return createError("Mongoose", error);
   }
 };
 
 const likeCard = async (cardId, userId) => {
   try {
     let card = await Card.findById(cardId);
-    if (!card) throw new Error("Card ID cannot found in the DataBase");
+    if (!card) {
 
+const error = new Error("card ID cannot found in the DataBase");
+error.status = 404;
+return createError("Mongoose", error);
+}
     if (card.likes.includes(userId)) {
       let newLikesArray = card.likes.filter((id) => id != userId);
       card.likes = newLikesArray;

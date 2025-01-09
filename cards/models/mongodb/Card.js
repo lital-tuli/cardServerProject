@@ -23,8 +23,8 @@ const cardSchema = new mongoose.Schema({
   bizNumber: {
     type: Number,
     required: true,
-    min: 1000000,
-    max: 9999999,
+    min: 1_000_000,
+    max: 9_999_999,
   },
   likes: [String],
   createAt: {
