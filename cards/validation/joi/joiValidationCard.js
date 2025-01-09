@@ -1,51 +1,48 @@
 const Joi = require('joi');
-const urlRegex = 
-/(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
 
 
-
-const schema = Joi.object({
-    title: Joi.string()
-        .min(2)
-        .max(256)
+const joiValidateCard = (card) => {
+    const urlRegex =
+      /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
+  
+    const schema = Joi.object({
+      title: Joi.string().min(2).max(256).required(),
+      subtitle: Joi.string().min(2).max(256).required(),
+      description: Joi.string().min(2).max(1024).required(),
+      phone: Joi.string()
+        .ruleset.regex(/0[0-9]{1,2}\-?\s?[0-9]{3}\s?[0-9]{4}/)
+        .rule({ message: "Card phone must vu a valid phone number" })
         .required(),
-        subtitle: Joi.string()
-        .min(2)
-        .max(256)
+      email: Joi.string()
+        .ruleset.pattern(
+          /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
+        )
+        .rule({ message: "Card email must br a valid email" })
         .required(),
-
-    description: Joi.string()
-    .min(2)
-    .max(1024)
-    .required(),
-
-    phone: Joi.string()
-        .ruleset.regex(/0[0-9]{1,2}\-?\s?[0-9]{3}\s?[0-9]{4}/).rule({message:"card phone number is not valid"}).required(),
-
-email: Joi.string().ruleset.pattern(/^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/)
-.rule({message:"card email is not valid"}).required(),
-
-    web: Joi.string().ruleset.regex(urlRegex)
-    .rule({message:"card web is not valid"})
-    .allow(""),
-    image: Joi.object().keys({
-        url: Joi.string().ruleset.regex(urlRegex)
-        .rule({message:"card image url is not valid"})
+      web: Joi.string()
+        .ruleset.regex(urlRegex)
+  .rule({ message: "card web mast be a valid url" })
         .allow(""),
-        alt: Joi.string().min(2).max(256).allow(""),
-    })
-    .required(),
-
-    address: Joi.object().keys({
-        street: Joi.string().required(),
-        city: Joi.string().required(),
-        country: Joi.string().required(),
+      image: Joi.object()
+        .keys({
+          url: Joi.string()
+            .ruleset.regex(urlRegex)
+            .rule({ message: "Card image must be a calid url" })
+            .allow(""),
+          alt: Joi.string().min(2).max(256).allow(""),
+        })
+        .required(),
+      address: Joi.object().keys({
         state: Joi.string().allow(""),
+        country: Joi.string().required(),
+        city: Joi.string().required(),
+        street: Joi.string().required(),
+        houseNumber: Joi.number().required(),
         zip: Joi.number(),
-        housenumber: Joi.string().required(),
-    }),
-}).required();
-
-module.exports = schema;
-
-
+      }),
+    }).required;
+  
+    return schema.validate(card);
+  };
+  
+  module.exports = joiValidateCard;
