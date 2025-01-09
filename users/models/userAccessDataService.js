@@ -1,6 +1,6 @@
 const { generateAuthToken } = require("../../auth/providers/jwt");
 const { createError } = require("../../utils/handleErrors");
-const { generatePassword } = require("../helpers/bcrypt");
+const { generatePassword, comparePasswords } = require("../helpers/bcrypt");
 const User = require("./mongodb/User");
 
 const registerUser = async (newUser) => {
@@ -26,21 +26,26 @@ const getUser = async (UserId) => {
 
 const loginUser = async (email, password) => {
   try {
-    const userFromBD = await User.findOne({ email });
-    if (!userFromBD) {
+    const userFromDB = await User.findOne({ email });
+    if (!userFromDB) {
 const error = new Error("user not exist , please register");
 error.status = 401; 
 createError("Authentication", error);
 
     }
-    if (userFromBD.password !== password) {
-      const error = new Error("password not correct");
-      error.status = 401; 
-      createError("Authentication", error);    }
-    const token = generateAuthToken(userFromBD);
+    
+    if (!comparePasswords(password, userFromDB.password)) {
+      const error = new Error(" password is not correct");
+      error.status = 401;
+      throw error;
+    }
+    
+    const token = generateAuthToken(userFromDB);
     return token;
+    
   } catch (error) {
-createError("Mongoose", error);
+    createError("Authentication", error);
+    throw error;
   }
 };
 
