@@ -149,6 +149,8 @@ npm install
 ```sh
 npm start
 ```
+## API Documentation
+Detailed API documentation can be found in [API.md](API.md)
 
 ## API Endpoints
 
