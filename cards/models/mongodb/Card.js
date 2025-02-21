@@ -1,4 +1,5 @@
-const { mongoose } = require("mongoose");
+// models/mongodb/Card.js
+const mongoose = require("mongoose");
 const {
   DEFAULT_VALIDATION,
   PHONE,
@@ -25,6 +26,7 @@ const cardSchema = new mongoose.Schema({
     required: true,
     min: 1_000_000,
     max: 9_999_999,
+    unique: true,
   },
   likes: [String],
   createAt: {
@@ -36,6 +38,8 @@ const cardSchema = new mongoose.Schema({
     required: true,
   },
 });
+
+cardSchema.index({ user_id: 1 });
 
 const Card = mongoose.model("card", cardSchema);
 

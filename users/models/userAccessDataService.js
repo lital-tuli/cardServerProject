@@ -15,9 +15,10 @@ const registerUser = async (newUser) => {
   }
 };
 
-const getUser = async (UserId) => {
+const getUser = async (userId) => {
   try {
-    let user = await User.findById(UserId);
+    let user = await User.findById(userId).select(["-password", "-__v"]);
+    if (!user) throw new Error("User not found");
     return user;
   } catch (error) {
     return createError("Mongoose", error);
@@ -26,26 +27,25 @@ const getUser = async (UserId) => {
 
 const loginUser = async (email, password) => {
   try {
-    const userFromDB = await User.findOne({ email });
-    if (!userFromDB) {
-const error = new Error("user not exist , please register");
-error.status = 401; 
-createError("Authentication", error);
-
-    }
-    
-    if (!comparePasswords(password, userFromDB.password)) {
-      const error = new Error(" password is not correct");
+    const user = await User.findOne({ email });
+    if (!user) {
+      const error = new Error("Invalid email or password");
       error.status = 401;
       throw error;
     }
-    
-    const token = generateAuthToken(userFromDB);
+
+    const isPasswordValid = comparePasswords(password, user.password);
+    if (!isPasswordValid) {
+      const error = new Error("Invalid email or password");
+      error.status = 401;
+      throw error;
+    }
+
+    const token = generateAuthToken(user);
     return token;
-    
   } catch (error) {
-    createError("Authentication", error);
-    throw error;
+    error.status = error.status || 401;
+    return createError("Authentication", error);
   }
 };
 
