@@ -16,6 +16,8 @@ const auth = (req, res, next) => {
 
       const userInfo = verifyToken(tokenFromClient);
       if (!userInfo) {
+        const error = new Error("Invalid token");
+        error.status = 401;
         return createError('Authentication', error);
       }
 

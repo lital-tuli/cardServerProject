@@ -3,6 +3,7 @@ const User = require("../users/models/mongodb/User");
 const Card = require("../cards/models/mongodb/Card");
 const { generateBizNum } = require("../cards/helpers/generateBizNum");
 const { generatePassword } = require("../users/helpers/bcrypt");
+
 const seedData = async () => {
     const userCount = await User.countDocuments();
     if (userCount === 0) {

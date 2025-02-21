@@ -110,18 +110,14 @@ router.patch("/:id", auth, async (req, res) => {
 
 router.delete("/:id", auth, async (req, res) => {
   try {
-    const { id } = req.params;
+    let { id } = req.params;
+    const userInfo = req.user;
     const originalCard = await getCard(id);
-    
     if (!originalCard) {
-      const error = new Error("Card not found");
-      error.status = 404;
-      throw createError("DataNotFound", error);
+      return handleError(res, 404, "Card not found");
     }
-
-    if (req.user._id != originalCard.user_id && !req.user.isAdmin) {
-      const error = new Error("Authorization Error: Only the user who created the card or admin can delete");
-      error.status = 403;
+    if (userInfo._id != originalCard.user_id && !userInfo.isAdmin) {
+      return handleError(res, 403, "Authorization Error: Only the user or admin can delete this card");
       throw createError("Authorization", error);
     }
 

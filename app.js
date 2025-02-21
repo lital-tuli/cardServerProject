@@ -6,12 +6,13 @@ const router = require("./router/router");
 const corsMiddleware = require("./middlewares/cors");
 const { handleError } = require("./utils/handleErrors");
 const chalk = require("chalk");
-const {loggerMiddleware} = require("./logger/loggerService");
-const seedDB = require("./utils/seedDB"); 
+const { loggerMiddleware } = require("./logger/loggerService");
+const seedData = require("./utils/seedDB");
 
 const app = express();
 const PORT = process.env.PORT || 8181;
 require("dotenv").config();
+
 app.use(express.static("./public"));
 app.use(corsMiddleware);
 app.use(express.json());
@@ -24,13 +25,14 @@ app.use((err, req, res, next) => {
   return handleError(res, 500, message);
 });
 
-app.listen(PORT, async () => {  // Make this async
+app.listen(PORT, async () => {
   console.log(chalk.bgGreenBright.white("Server listening to port " + PORT));
   try {
-    await connectToDB();  // Wait for DB connection
-    await seedDB();      // Seed the database after connection
-    console.log(chalk.bgBlueBright.white("Database connection and seeding completed"));
+    await connectToDB();
+    console.log(chalk.bgBlueBright.white("Connected to database successfully"));
+    await seedData();
+    console.log(chalk.bgBlueBright.white("Database seeded successfully"));
   } catch (error) {
-    console.log(chalk.bgRedBright.white("Error connecting to database:", error.message));
+    console.log(chalk.bgRedBright.white("Error:", error.message));
   }
 });
