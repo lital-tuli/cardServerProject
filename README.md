@@ -1,43 +1,15 @@
-# Business Card Management System
+# CardServerProject
 
-A RESTful API server built with Node.js and Express for managing business cards and users. This system allows users to create, read, update, and delete business cards while implementing authentication and authorization.
+## Description
 
-## Features
+This project is a user registration and management system built with Node.js and Express. It provides authentication using JWT, password encryption, and a card management system where users can perform CRUD operations on cards.
 
-- User authentication and authorization using JWT
-- Business card CRUD operations
-- Role-based access control (Regular, Business, Admin users)
-- MongoDB database integration
-- Input validation using Joi
-- Error handling and logging
-- CORS support
-- Database seeding with initial data
+## Setup Environment Variables
 
-## Prerequisites
-
-- Node.js (v16 or higher)
-- MongoDB (local installation or Atlas account)
-- npm or yarn package manager
-
-## Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/lital-tuli/cardServerProject.git
-cd cardServerProject
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env` file in the root directory with the following variables:
-```env
-PORT=8181
-ATLAS_CONNECTION_STRING=your_mongodb_connection_string
-SECRET=your_jwt_secret_key
-```
+ Configure the following variables:
+   - **ATLAS_CONNECTION_STRING**: Your MongoDB connection string
+   - **SECRET_WORD**: Secret string for JWT signing
+   - **PORT**: Application port (default: 8181)
 
 ## Project Structure
 
@@ -118,107 +90,175 @@ cardServerProject/
     ├── timeHelper.js        # Time formatting helper
     └── seedDB.js            # Database seeding utility
 
-## API Endpoints
+## Features
 
-### Authentication
+- User registration and login with JWT authentication
+- Password encryption using bcrypt
+- Card management system (CRUD operations)
+- MongoDB database integration
+- Input validation with Joi
+- Logging with Morgan
+- CORS support
+- Support for multiple environments (local and cloud/Atlas)
+- Proper HTTP response handling with status codes and error messages
+- Initial data setup for users and cards
+- Mongoose models for structured database management
+- Admins can update business numbers while ensuring uniqueness
+- Error logs (status code 400 and above) are saved in a log file with date-based filenames
 
-- `POST /users/` - Register a new user
-- `POST /users/login` - Login user
+## Libraries Used
 
-### Cards
+- **bcryptjs** (^2.4.3): Password hashing
+- **chalk** (^5.4.1): Terminal styling
+- **config** (^3.3.12): Configuration management
+- **cors** (^2.8.5): Cross-Origin Resource Sharing
+- **cross-env** (^7.0.3): Environment variable management
+- **dotenv** (^16.4.7): Environment variable loading
+- **express** (^4.21.2): Web framework
+- **joi** (^17.13.3): Schema validation
+- **jsonwebtoken** (^9.0.2): JWT authentication
+- **lodash** (^4.17.21): Utility functions
+- **mongoose** (^8.10.0): MongoDB ODM
+- **morgan** (^1.10.0): HTTP request logging
 
-- `GET /cards` - Get all cards
-- `GET /cards/:id` - Get specific card
-- `GET /cards/my-cards` - Get user's cards (requires authentication)
-- `POST /cards` - Create new card (requires business user)
-- `PUT /cards/:id` - Update card (owner or admin only)
-- `PATCH /cards/:id` - Like/unlike card (requires authentication)
-- `DELETE /cards/:id` - Delete card (owner or admin only)
+## Command Usage
 
-### Users
+- **`npm test`**: Run tests (currently outputs error - no tests specified)
+- **`npm start`**: Run in production mode
+- **`npm run dev`**: Run in development mode with nodemon
+- **`npm run prod`**: Run in production mode with Atlas DB
+- **⚠️ `npm run clearDatabase`**: Clear database (use with caution)
 
-- `GET /users/:id` - Get user details (same user or admin only)
+## Installation
 
-## Running the Application
-
-### Development Mode
-```bash
-npm run dev
+1. Clone the repository:
+```sh
+git clone <repository_url>
+cd <project_directory>
 ```
 
-### Production Mode
-```bash
+2. Install dependencies:
+```sh
+npm install
+```
+
+3. Set up environment variables:
+   - Configure MongoDB connection and JWT secrets
+
+4. Start the application:
+```sh
 npm start
 ```
 
-## Database Seeding
+## API Endpoints
 
-The application includes automatic database seeding with initial data including:
-- Regular user
-- Business user
-- Admin user
-- Sample business cards
+### User Endpoints
 
-Seeding occurs automatically on first run if the database is empty.
+| No. | URL          | Method | Authorization | Action                 |
+|-----|-------------|--------|---------------|------------------------|
+| 1   | /users      | POST   | All          | Register user          |
+| 2   | /users/login| POST   | All          | Login user             |
+| 3   | /users      | GET    | Admin        | Get all users          |
+| 4   | /users/:id  | GET    | User/Admin   | Get user by ID         |
+| 5   | /users/:id  | PUT    | User         | Edit user              |
+| 6   | /users/:id  | PATCH  | User         | Change business status |
+| 7   | /users/:id  | DELETE | User/Admin   | Delete user            |
 
-## Test Users
+### Card Endpoints
 
-```javascript
-Regular User:
-- Email: regular@gmail.com
-- Password: Aa123456!
+| No. | URL                   | Method | Authorization   | Action                |
+|-----|----------------------|--------|-----------------|----------------------|
+| 1   | /cards               | GET    | All            | Get all cards         |
+| 2   | /cards/my-cards      | GET    | Registered User| Get user cards        |
+| 3   | /cards/:id           | GET    | All            | Get specific card     |
+| 4   | /cards               | POST   | Business User  | Create new card       |
+| 5   | /cards/:id           | PUT    | Owner          | Edit card             |
+| 6   | /cards/:id           | PATCH  | Registered User| Like card             |
+| 7   | /cards/:id           | DELETE | Owner/Admin    | Delete card           |
+| 8   | /cards/:id/bizNumber | PATCH  | Admin          | Update card bizNumber |
 
-Business User:
-- Email: business@gmail.com
-- Password: Aa123456!
+## API Request Formats
 
-Admin User:
-- Email: admin@gmail.com
-- Password: Aa123456!
+### Users
+
+#### Register User
+```json
+{
+    "name": {
+        "first": "John",
+        "middle": "M.",
+        "last": "Doe"
+    },
+    "phone": "1234567890",
+    "email": "john@example.com",
+    "password": "SecurePass123!",
+    "image": {
+        "url": "https://example.com/image.jpg",
+        "alt": "Profile image"
+    },
+    "address": {
+        "state": "CA",
+        "country": "USA",
+        "city": "Los Angeles",
+        "street": "Main St",
+        "houseNumber": 10,
+        "zip": 90001
+    },
+    "isBusiness": false
+}
 ```
 
-## Validation
+#### Login User
+```json
+{
+    "email": "john@example.com",
+    "password": "SecurePass123!"
+}
+```
 
-- User registration and card creation include comprehensive validation using Joi
-- Passwords must contain uppercase, lowercase, number, and special character
-- Business numbers are automatically generated and unique
-- Email addresses must be valid and unique
+### Cards
 
-## Error Handling
+#### Create Card
+```json
+{
+    "title": "Business Card",
+    "subtitle": "Your Best Partner",
+    "description": "A great business card for professionals.",
+    "phone": "1234567890",
+    "email": "business@example.com",
+    "web": "https://business.com",
+    "image": {
+        "url": "https://example.com/card.jpg",
+        "alt": "Business card image"
+    },
+    "address": {
+        "state": "CA",
+        "country": "USA",
+        "city": "San Francisco",
+        "street": "Market St",
+        "houseNumber": 100,
+        "zip": 94103
+    }
+}
+```
 
-The application includes centralized error handling with:
-- Custom error messages
-- Appropriate HTTP status codes
-- Error logging
-- Development/Production error response formatting
+## CORS Configuration
 
-## Security Features
+CORS is configured in `middlewares/cors.js`. To add new allowed origins:
 
-- Password hashing using bcrypt
-- JWT token authentication
-- Role-based access control
-- CORS protection
-- Input validation
-- Error sanitization
+1. Open `middlewares/cors.js`
+2. Add new origins to the origin array:
+```javascript
+const corsOptions = {
+    origin: ["http://localhost:3000", "https://your-domain.com"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+};
+```
+3. Restart the server after changes
 
-## Contributing
+## Error Logging
 
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature-name`
-3. Commit your changes: `git commit -m 'Add some feature'`
-4. Push to the branch: `git push origin feature-name`
-5. Submit a pull request
-
-## License
-
-This project is licensed under the ISC License.
-
-## Author
-
-Lital Gehman
-
-## Acknowledgments
-
-- Express.js team
-- MongoDB team
-- All package maintainers
+- Error logs (status code 400+) are saved in the `logs` directory
+- Filenames are date-based (e.g., `2025-02-19.log`)
+- Logs include timestamp, error details, and request information
